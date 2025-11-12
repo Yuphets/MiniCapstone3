@@ -14,11 +14,6 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    public function showRegister()
-    {
-        return view('auth.register');
-    }
-
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -28,7 +23,9 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->intended('/');
+            
+            // Redirect to dashboard
+            return redirect()->intended('/dashboard');
         }
 
         return back()->withErrors([
@@ -36,36 +33,43 @@ class AuthController extends Controller
         ])->onlyInput('email');
     }
 
+    public function showRegister()
+    {
+        return view('auth.register');
+    }
+
     public function register(Request $request)
     {
         $validated = $request->validate([
-            'username' => 'required|string|max:50|unique:users',
-            'email' => 'required|email|unique:users',
+            'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users',
+            'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|min:6|confirmed',
-            'full_name' => 'required|string|max:255',
-            'height_cm' => 'required|numeric|min:100|max:250',
-            'weight_kg' => 'required|numeric|min:30|max:300',
+            'height_cm' => 'nullable|numeric|min:100|max:250',
+            'weight_kg' => 'nullable|numeric|min:20|max:300',
         ]);
 
         $user = User::create([
+            'name' => $validated['name'],
             'username' => $validated['username'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'full_name' => $validated['full_name'],
-            'height_cm' => $validated['height_cm'],
-            'weight_kg' => $validated['weight_kg'],
+            'height_cm' => $validated['height_cm'] ?? null,
+            'weight_kg' => $validated['weight_kg'] ?? null,
         ]);
 
         Auth::login($user);
 
-        return redirect('/')->with('success', 'Account created successfully!');
+        return redirect('/dashboard');
     }
 
     public function logout(Request $request)
     {
         Auth::logout();
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect('/login');
+
+        return redirect('/');
     }
 }

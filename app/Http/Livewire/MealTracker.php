@@ -19,6 +19,7 @@ class MealTracker extends Component
     public $showFoodSearch = false;
     public $selectedMealType = 'breakfast';
     public $searchQuery = '';
+    public $selectedMealForFood = null;
 
     public $mealForm = [
         'meal_date' => '',
@@ -45,12 +46,19 @@ class MealTracker extends Component
 
     public function loadMeals(): void
     {
-        $this->meals = MealLog::with(['mealItems.foodItem'])
+        $meals = MealLog::with(['mealItems.foodItem'])
             ->where('user_id', Auth::id())
             ->where('meal_date', $this->mealForm['meal_date'])
             ->orderBy('created_at', 'desc')
-            ->get()
-            ->groupBy('meal_type');
+            ->get();
+
+        // Convert to array but keep the Eloquent models for relationships
+        $groupedMeals = [];
+        foreach ($meals as $meal) {
+            $groupedMeals[$meal->meal_type][] = $meal;
+        }
+        
+        $this->meals = $groupedMeals;
     }
 
     public function loadFoodItems(): void
@@ -90,18 +98,31 @@ class MealTracker extends Component
     }
 
     /**
-     * Add food item to a specific meal
+     * Show food search modal for a specific meal
      *
-     * @param int $mealLogId
+     * @param int $mealId
      * @return void
      */
-    public function addFoodToMeal(int $mealLogId): void
+    public function openFoodSearch(int $mealId): void
+    {
+        \Log::info("openFoodSearch called with mealId: " . $mealId);
+        $this->selectedMealForFood = $mealId;
+        $this->showFoodSearch = true;
+        $this->loadFoodItems();
+    }
+
+    /**
+     * Add food item to a specific meal
+     *
+     * @return void
+     */
+    public function addFoodToMeal(): void
     {
         $foodItem = FoodItem::find($this->foodForm['food_item_id']);
 
-        if ($foodItem && $mealLogId) {
+        if ($foodItem && $this->selectedMealForFood) {
             // Calculate nutrition based on quantity
-            $servingRatio = $this->foodForm['quantity'] / $foodItem->serving_qty;
+            $servingRatio = $this->foodForm['quantity'] / ($foodItem->serving_qty ?: 1);
 
             $calories = $foodItem->calories * $servingRatio;
             $protein = $foodItem->protein_g * $servingRatio;
@@ -109,7 +130,7 @@ class MealTracker extends Component
             $fats = $foodItem->fats_g * $servingRatio;
 
             MealItem::create([
-                'meal_log_id' => $mealLogId,
+                'meal_log_id' => $this->selectedMealForFood,
                 'food_item_id' => $foodItem->id,
                 'quantity' => $this->foodForm['quantity'],
                 'calories' => $calories,
@@ -119,7 +140,7 @@ class MealTracker extends Component
             ]);
 
             // Update meal log total calories
-            $mealLog = MealLog::find($mealLogId);
+            $mealLog = MealLog::find($this->selectedMealForFood);
             if ($mealLog) {
                 $totalCalories = $mealLog->mealItems->sum('calories') + $calories;
                 $mealLog->update(['total_calories' => $totalCalories]);
@@ -127,6 +148,7 @@ class MealTracker extends Component
 
             $this->resetFoodForm();
             $this->showFoodSearch = false;
+            $this->selectedMealForFood = null;
             $this->loadMeals();
 
             session()->flash('message', 'Food item added to meal!');
@@ -157,6 +179,34 @@ class MealTracker extends Component
             $this->loadMeals();
             session()->flash('message', 'Food item removed from meal!');
         }
+    }
+
+    /**
+     * Delete an entire meal
+     *
+     * @param int $mealId
+     * @return void
+     */
+    public function deleteMeal(int $mealId): void
+    {
+        $meal = MealLog::find($mealId);
+
+        if ($meal) {
+            // Delete all associated meal items first
+            $meal->mealItems()->delete();
+            // Then delete the meal
+            $meal->delete();
+
+            $this->loadMeals();
+            session()->flash('message', 'Meal deleted successfully!');
+        }
+    }
+
+    public function closeFoodSearch(): void
+    {
+        $this->showFoodSearch = false;
+        $this->selectedMealForFood = null;
+        $this->resetFoodForm();
     }
 
     private function resetMealForm(): void
