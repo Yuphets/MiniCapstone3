@@ -13,13 +13,12 @@ class MealLog extends Model
         'user_id',
         'meal_date',
         'meal_type',
-        'total_calories',
-        'notes'
+        'notes',
+        'total_calories'
     ];
 
     protected $casts = [
         'meal_date' => 'date',
-        'total_calories' => 'decimal:2'
     ];
 
     public function user()
@@ -32,14 +31,9 @@ class MealLog extends Model
         return $this->hasMany(MealItem::class);
     }
 
-    // Helper method to calculate total nutrition
-    public function getTotalNutritionAttribute()
+    // Add this method to fix the relationship issue
+    public function foodItems()
     {
-        return [
-            'calories' => $this->mealItems->sum('calories'),
-            'protein' => $this->mealItems->sum('protein_g'),
-            'carbs' => $this->mealItems->sum('carbs_g'),
-            'fats' => $this->mealItems->sum('fats_g'),
-        ];
+        return $this->hasManyThrough(FoodItem::class, MealItem::class, 'meal_log_id', 'id', 'id', 'food_item_id');
     }
 }

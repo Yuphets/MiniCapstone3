@@ -7,6 +7,7 @@ use App\Http\Livewire\Dashboard;
 use App\Http\Livewire\WorkoutTracker;
 use App\Http\Livewire\MealTracker;
 use App\Http\Livewire\ProgressTracker;
+use App\Http\Livewire\FoodDiary;
 use Illuminate\Support\Facades\Auth;
 
 // Home route
@@ -29,13 +30,15 @@ Route::post('/register', [AuthController::class, 'register']);
 // Protected Routes - Regular Users
 Route::middleware(['auth'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
     Route::get('/workouts', WorkoutTracker::class)->name('workouts');
     Route::get('/meals', MealTracker::class)->name('meals');
     Route::get('/progress', ProgressTracker::class)->name('progress');
+    Route::get('/diary', FoodDiary::class)->name('diary');
 });
 
-// Admin Routes - WITHOUT the problematic admin middleware
+// Admin Routes
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/users', [AdminController::class, 'users'])->name('users');

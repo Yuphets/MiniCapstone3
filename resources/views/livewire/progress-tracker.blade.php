@@ -1,14 +1,15 @@
 <div class="min-h-screen bg-gray-50 p-4 md:p-6">
-    <!-- Header Section -->
-    <div class="max-w-6xl mx-auto mb-6 md:mb-8">
-        <h2 class="text-2xl md:text-3xl font-bold text-[#1C7C6E] mb-1 flex items-center justify-center md:justify-start gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 md:w-7 md:h-7 text-[#1C7C6E]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 17l6-6 4 4 8-8" />
-            </svg>
+   <!-- Header Section -->
+<div class="max-w-2xl mx-auto mb-8 pt-6">
+    <div class="text-center">
+        <h2 class="text-2xl md:text-3xl font-bold text-[#1C7C6E] mb-3">
             Progress Tracker
         </h2>
-        <p class="text-gray-500 text-center md:text-left">Your fitness trends over time</p>
+        <p class="text-base text-gray-600 max-w-md mx-auto">
+            Your fitness trends over time
+        </p>
     </div>
+</div>
 
     @if (session('message'))
         <div class="max-w-6xl mx-auto mb-6">
@@ -22,7 +23,7 @@
         <!-- Chart Section -->
         <div class="bg-white rounded-2xl md:rounded-3xl shadow-lg p-4 md:p-6 border border-[#B6E0D9]">
             <div class="bg-gradient-to-r from-[#E0F3F0] to-[#B6E0D9] rounded-2xl p-4 md:p-6 shadow-inner border border-[#B6E0D9]">
-                <canvas id="progressChart" class="w-full h-48 md:h-56 lg:h-64"></canvas>
+                <canvas id="progressChart" class="w-full h-48 md:h-56 lg:h-64" wire:ignore></canvas>
             </div>
         </div>
 
@@ -46,12 +47,35 @@
                 </svg>
                 <p class="text-xs md:text-sm text-gray-600">BMI</p>
                 <h3 class="font-bold text-[#1C7C6E] text-base md:text-lg">
-                    @if($weight && Auth::user()->height_cm)
-                        {{ number_format($weight / ((Auth::user()->height_cm / 100) ** 2), 1) }}
-                    @else
-                        N/A
-                    @endif
+                    {{ $bmi ? number_format($bmi, 1) : 'N/A' }}
                 </h3>
+                @if($bmi)
+                    @php
+                        $bmiCategory = '';
+                        $bmiColor = 'gray';
+                        if ($bmi < 18.5) {
+                            $bmiCategory = 'Underweight';
+                            $bmiColor = 'yellow';
+                        } elseif ($bmi >= 18.5 && $bmi < 25) {
+                            $bmiCategory = 'Healthy Weight';
+                            $bmiColor = 'green';
+                        } elseif ($bmi >= 25 && $bmi < 30) {
+                            $bmiCategory = 'Overweight';
+                            $bmiColor = 'orange';
+                        } else {
+                            $bmiCategory = 'Obese';
+                            $bmiColor = 'red';
+                        }
+                    @endphp
+                    <div class="mt-1 px-2 py-1 rounded-full text-xs font-medium
+                        @if($bmiColor === 'green') bg-green-100 text-green-800
+                        @elseif($bmiColor === 'yellow') bg-yellow-100 text-yellow-800
+                        @elseif($bmiColor === 'orange') bg-orange-100 text-orange-800
+                        @elseif($bmiColor === 'red') bg-red-100 text-red-800
+                        @else bg-gray-100 text-gray-800 @endif">
+                        {{ $bmiCategory }}
+                    </div>
+                @endif
             </div>
 
             <!-- Body Fat -->
@@ -93,8 +117,8 @@
                         <input type="number" step="0.1" wire:model="weight"
                                class="w-full border border-gray-300 rounded-lg px-3 py-2 md:py-3 focus:outline-none focus:ring-2 focus:ring-[#1C7C6E] focus:border-transparent transition duration-200"
                                placeholder="Enter weight">
-                        @error('weight') 
-                            <span class="text-red-500 text-xs mt-1">{{ $message }}</span> 
+                        @error('weight')
+                            <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                         @enderror
                     </div>
 
@@ -113,12 +137,12 @@
                     </div>
                 </div>
 
-                <button type="submit"
+                <button type="submit" id="saveMetricsBtn"
                         class="bg-[#1C7C6E] hover:bg-[#155c53] text-white font-semibold py-2 md:py-3 px-6 md:px-8 rounded-lg transition-all duration-300 transform hover:scale-105 flex items-center gap-2 w-full md:w-auto justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
-                    Save Metrics
+                    <span id="buttonText">Save Metrics</span>
                 </button>
             </form>
         </div>
@@ -133,7 +157,7 @@
                     </svg>
                     Goals
                 </h3>
-                
+
                 @if(count($goals) > 0)
                     <div class="space-y-3">
                         @foreach($goals as $goal)
@@ -173,7 +197,7 @@
                     </svg>
                     Recent Achievements
                 </h3>
-                
+
                 @if(count($achievements) > 0)
                     <div class="space-y-3">
                         @foreach($achievements->take(3) as $achievement)
@@ -199,39 +223,38 @@
                 @endif
             </div>
         </div>
-
-        <!-- View Detailed Report Section -->
-        <div class="flex justify-center mt-6 md:mt-8">
-            <a href="{{ url('/detailed-report') }}"
-               class="group bg-[#1C7C6E] hover:bg-[#155c53] text-white font-semibold py-3 px-8 md:px-10 rounded-full
-                      shadow-lg flex items-center gap-3 transition-all duration-300 transform hover:scale-105 w-full md:w-auto justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg"
-                     class="w-5 h-5 md:w-6 md:h-6 text-white group-hover:translate-x-1 transition-transform duration-300"
-                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-                <span class="text-sm md:text-base">View Detailed Report</span>
-            </a>
-        </div>
-
-        <p class="text-xs md:text-sm text-gray-500 text-center mt-2">
-            Click to view your full fitness data and progress history
-        </p>
     </div>
 
     <!-- Chart.js Script -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        let progressChart = null;
+
+        function initializeChart() {
             const ctx = document.getElementById('progressChart');
             if (ctx) {
-                new Chart(ctx, {
+                // Destroy existing chart if it exists
+                if (progressChart) {
+                    progressChart.destroy();
+                }
+
+                // Get actual weight data from Livewire component
+                const weightData = @json($weightHistory->pluck('weight_kg'));
+                const labels = @json($weightHistory->pluck('measured_at')->map(function($date) {
+                    return \Carbon\Carbon::parse($date)->format('M j');
+                }));
+
+                // If no data, show placeholder
+                const chartData = weightData.length > 0 ? weightData : [0];
+                const chartLabels = labels.length > 0 ? labels : ['No data'];
+
+                progressChart = new Chart(ctx, {
                     type: 'line',
                     data: {
-                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        labels: chartLabels,
                         datasets: [{
                             label: 'Weight (kg)',
-                            data: [68, 67.8, 67.5, 67.3, 67.1, 66.9, 66.7],
+                            data: chartData,
                             borderColor: '#1C7C6E',
                             borderWidth: 3,
                             pointBackgroundColor: '#1C7C6E',
@@ -246,9 +269,9 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        plugins: { 
-                            legend: { 
-                                display: false 
+                        plugins: {
+                            legend: {
+                                display: false
                             },
                             tooltip: {
                                 backgroundColor: '#1C7C6E',
@@ -259,7 +282,7 @@
                             }
                         },
                         scales: {
-                            y: { 
+                            y: {
                                 display: true,
                                 grid: {
                                     color: 'rgba(182, 224, 217, 0.3)'
@@ -268,9 +291,9 @@
                                     color: '#1C7C6E'
                                 }
                             },
-                            x: { 
-                                grid: { 
-                                    display: false 
+                            x: {
+                                grid: {
+                                    display: false
                                 },
                                 ticks: {
                                     color: '#1C7C6E'
@@ -284,7 +307,44 @@
                     }
                 });
             }
+        }
+
+        // Initialize chart when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeChart();
         });
+
+        // Re-initialize chart after Livewire updates
+        document.addEventListener('livewire:load', function() {
+            initializeChart();
+        });
+
+        document.addEventListener('livewire:update', function() {
+            setTimeout(initializeChart, 100);
+        });
+
+        // Save Metrics Button Animation
+        const saveMetricsBtn = document.getElementById('saveMetricsBtn');
+
+        if (saveMetricsBtn) {
+            saveMetricsBtn.addEventListener('click', function() {
+                // Change button to saved state
+                const originalText = saveMetricsBtn.innerHTML;
+                saveMetricsBtn.classList.remove('bg-[#1C7C6E]', 'hover:bg-[#155c53]');
+                saveMetricsBtn.classList.add('bg-green-500', 'hover:bg-green-600');
+                saveMetricsBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg><span class="flex items-center gap-2">Saved!</span>';
+
+                // Add bounce animation
+                saveMetricsBtn.classList.add('animate-bounce');
+
+                // Revert back to original state after 3 seconds
+                setTimeout(() => {
+                    saveMetricsBtn.classList.remove('bg-green-500', 'hover:bg-green-600', 'animate-bounce');
+                    saveMetricsBtn.classList.add('bg-[#1C7C6E]', 'hover:bg-[#155c53]');
+                    saveMetricsBtn.innerHTML = originalText;
+                }, 3000);
+            });
+        }
     </script>
 
     <!-- Responsive Styles -->
@@ -294,7 +354,7 @@
                 grid-template-columns: repeat(2, 1fr);
             }
         }
-        
+
         @media (max-width: 480px) {
             .grid-cols-2 {
                 grid-template-columns: 1fr;
@@ -310,6 +370,22 @@
         /* Focus styles for better accessibility */
         input:focus {
             box-shadow: 0 0 0 3px rgba(28, 124, 110, 0.1);
+        }
+
+        /* Bounce animation for the save button */
+        @keyframes bounce {
+            0%, 20%, 60%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            80% {
+                transform: translateY(-5px);
+            }
+        }
+        .animate-bounce {
+            animation: bounce 0.5s;
         }
     </style>
 </div>

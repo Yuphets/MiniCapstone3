@@ -18,6 +18,10 @@ class User extends Authenticatable
         'height_cm',
         'weight_kg',
         'is_admin',
+        'full_name',
+        'dob',
+        'gender',
+        'goal_text',
     ];
 
     protected $hidden = [
@@ -29,9 +33,10 @@ class User extends Authenticatable
         'height_cm' => 'decimal:2',
         'weight_kg' => 'decimal:2',
         'is_admin' => 'boolean',
+        'dob' => 'date',
     ];
 
-    // Relationships
+    // Relationships from both NQ1 and NQ2
     public function workoutLogs()
     {
         return $this->hasMany(WorkoutLog::class);

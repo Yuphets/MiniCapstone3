@@ -20,10 +20,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Register Livewire components
+        // Register Livewire components from NQ2
         Livewire::component('dashboard', \App\Http\Livewire\Dashboard::class);
         Livewire::component('workout-tracker', \App\Http\Livewire\WorkoutTracker::class);
         Livewire::component('meal-tracker', \App\Http\Livewire\MealTracker::class);
         Livewire::component('progress-tracker', \App\Http\Livewire\ProgressTracker::class);
+        Livewire::component('food-diary', \App\Http\Livewire\FoodDiary::class);
     }
 }

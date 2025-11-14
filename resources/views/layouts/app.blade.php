@@ -19,6 +19,7 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            padding-bottom: 5rem; /* Space for bottom navbar on mobile */
         }
         .text-primary {
             color: #1C7C6E;
@@ -32,64 +33,34 @@
         .border-primary {
             border-color: #1C7C6E;
         }
+
+        /* Remove bottom padding on desktop */
+        @media (min-width: 768px) {
+            body {
+                padding-bottom: 0;
+            }
+        }
     </style>
 </head>
 <body class="font-sans antialiased bg-gray-50">
     <div class="min-h-screen">
-        <!-- Navigation -->
-        <nav class="bg-white shadow-sm border-b">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between h-16">
-                    <div class="flex items-center">
-                        <a href="{{ route('dashboard') }}" class="text-xl font-bold text-primary">
-                            NutriQuest
-                        </a>
-                        <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-                            <a href="{{ route('dashboard') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                                Dashboard
-                            </a>
-                            <a href="{{ route('workouts') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                                Workouts
-                            </a>
-                            <a href="{{ route('meals') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                                Meals
-                            </a>
-                            <a href="{{ route('progress') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                                Progress
-                            </a>
-                            <!-- ADMIN PANEL LINK - CORRECTED VERSION -->
-                            @auth
-    @if(auth()->user()->is_admin)
-        <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
-            Admin Panel
-        </a>
-    @endif
-@endauth
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-4">
-                        <span class="text-sm text-gray-700">Welcome, {{ Auth::user()->name ?? 'User' }}</span>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="text-sm text-gray-500 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded transition duration-300">
-                                Logout
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </nav>
+        <!-- Include Navigation Components -->
+        @include('components.desktop-nav')
+        @include('components.mobile-header')
 
         <!-- Page Content -->
-        <main>
+        <main class="pb-4 md:pb-0">
             {{ $slot }}
         </main>
+
+        <!-- Mobile Bottom Navigation -->
+        @include('components.mobile-nav')
     </div>
 
     <!-- Livewire Scripts -->
     @livewireScripts
 
-    <!-- Alpine.js for Livewire -->
+    <!-- Alpine.js -->
     <script src="//unpkg.com/alpinejs" defer></script>
 </body>
 </html>

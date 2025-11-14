@@ -16,26 +16,26 @@ class AuthController extends Controller
     }
 
     public function login(Request $request)
-{
-    $credentials = $request->validate([
-        'email' => 'required|email',
-        'password' => 'required',
-    ]);
+    {
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
 
-    if (Auth::attempt($credentials)) {
-        $request->session()->regenerate();
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
 
-        // Redirect to dashboard based on user role
-        if (Auth::user()->is_admin) {
-            return redirect()->intended('/admin/dashboard');
+            // Redirect to dashboard based on user role
+            if (Auth::user()->is_admin) {
+                return redirect()->intended('/admin/dashboard');
+            }
+            return redirect()->intended('/dashboard');
         }
-        return redirect()->intended('/dashboard');
-    }
 
-    return back()->withErrors([
-        'email' => 'The provided credentials do not match our records.',
-    ])->onlyInput('email');
-}
+        return back()->withErrors([
+            'email' => 'The provided credentials do not match our records.',
+        ])->onlyInput('email');
+    }
 
     public function showRegister()
     {
@@ -60,6 +60,7 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
             'height_cm' => $validated['height_cm'] ?? null,
             'weight_kg' => $validated['weight_kg'] ?? null,
+            'is_admin' => false, // Default to regular user
         ]);
 
         // Create initial body metric record if weight is provided

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FitTrack - Your Personal Fitness Companion</title>
+    <title>Nutriquest - Your Personal Fitness Companion</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -42,7 +42,7 @@
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
                     <div class="flex-shrink-0 flex items-center">
-                        <span class="text-2xl font-bold text-primary">FitTrack</span>
+                        <span class="text-2xl font-bold text-primary">Nutriquest</span>
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
@@ -84,7 +84,7 @@
                 </div>
                 <div class="relative">
                     <div class="relative rounded-2xl overflow-hidden image-hover shadow-2xl">
-                        <img src="{{ asset('images/person-working-out.jpg') }}" alt="Person working out with FitTrack" class="w-full h-96 object-cover">
+                        <img src="{{ asset('images/person-working-out.jpg') }}" alt="Person working out with Nutriquest" class="w-full h-96 object-cover">
                         <div class="absolute inset-0 bg-gradient-to-r from-green-900/20 to-transparent"></div>
                     </div>
                 </div>
@@ -230,15 +230,15 @@
             <div class="text-center mb-16">
                 <h2 class="text-4xl font-bold text-gray-900 mb-4">Join Our Fitness Community</h2>
                 <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-                    See how real people are transforming their lives with FitTrack
+                    See how real people are transforming their lives with Nutriquest
                 </p>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="relative rounded-2xl overflow-hidden image-hover">
-                    <img src="{{ asset('images/gallery-1.jpg') }}" alt="FitTrack community member" class="w-full h-64 object-cover">
+                    <img src="{{ asset('images/gallery-1.jpg') }}" alt="Nutriquest community member" class="w-full h-64 object-cover">
                 </div>
                 <div class="relative rounded-2xl overflow-hidden image-hover">
-                    <img src="{{ asset('images/gallery-2.jpg') }}" alt="Happy FitTrack user" class="w-full h-64 object-cover">
+                    <img src="{{ asset('images/gallery-2.jpg') }}" alt="Happy Nutriquest user" class="w-full h-64 object-cover">
                 </div>
                 <div class="relative rounded-2xl overflow-hidden image-hover">
                     <img src="{{ asset('images/gallery-3.jpg') }}" alt="Fitness transformation" class="w-full h-64 object-cover">
@@ -248,20 +248,20 @@
     </section>
 
     <!-- Stats Section -->
-    <section class="py-20 bg-primary text-white">
+    <section class="py-20 bg-primary text-black">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
                 <div>
                     <div class="text-4xl font-bold mb-2">10K+</div>
-                    <div class="text-green-200 text-lg">Active Users</div>
+                    <div class="text-green-400 text-lg">Active Users</div>
                 </div>
                 <div>
                     <div class="text-4xl font-bold mb-2">50K+</div>
-                    <div class="text-green-200 text-lg">Workouts Logged</div>
+                    <div class="text-green-400 text-lg">Workouts Logged</div>
                 </div>
                 <div>
                     <div class="text-4xl font-bold mb-2">100K+</div>
-                    <div class="text-green-200 text-lg">Meals Tracked</div>
+                    <div class="text-green-400 text-lg">Meals Tracked</div>
                 </div>
             </div>
         </div>
@@ -272,7 +272,7 @@
         <div class="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
             <h2 class="text-4xl font-bold mb-6">Ready to Transform Your Fitness Journey?</h2>
             <p class="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-                Join thousands of users who have already started tracking their fitness progress with FitTrack.
+                Join thousands of users who have already started tracking their fitness progress with Nutriquest.
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
                 <a href="/register" class="btn-primary hover:bg-[#145C52] text-white px-8 py-4 rounded-lg text-lg font-semibold transition duration-300 transform hover:scale-105">
@@ -291,7 +291,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div>
-                    <h3 class="text-2xl font-bold mb-4 text-primary">FitTrack</h3>
+                    <h3 class="text-2xl font-bold mb-4 text-primary">Nutriquest</h3>
                     <p class="text-gray-400">
                         Your personal fitness companion for tracking workouts, nutrition, and progress.
                     </p>
@@ -322,7 +322,7 @@
                 </div>
             </div>
             <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-                <p>&copy; 2024 FitTrack. All rights reserved.</p>
+                <p>&copy; 2024 Nutriquest. All rights reserved.</p>
             </div>
         </div>
     </footer>

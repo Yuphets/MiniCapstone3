@@ -12,13 +12,17 @@ use Illuminate\View\View;
 
 class ProgressTracker extends Component
 {
+    // Use the layout property instead of method
+    protected $layout = 'layouts.app';
+
     public $weight;
     public $bodyFat;
     public $waist;
+    public $bmi;
     public $goals = [];
     public $achievements = [];
     public $weightHistory = [];
-    public $selectedPeriod = '30'; // days
+    public $selectedPeriod = '30';
     public $goalForm = [
         'goal_type' => 'weight_loss',
         'target_value' => '',
@@ -56,6 +60,7 @@ class ProgressTracker extends Component
             $this->weight = $latestMetric->weight_kg;
             $this->bodyFat = $latestMetric->body_fat_pct;
             $this->waist = $latestMetric->waist_cm;
+            $this->bmi = $latestMetric->bmi;
         }
 
         // Load goals
@@ -89,15 +94,17 @@ class ProgressTracker extends Component
     public function saveBodyMetric(): void
     {
         $this->validate();
+
         $user = Auth::user();
         if (!$user) {
             return;
         }
 
-        $height = $user->height_cm ?? 170; // Default height if not set
+        $height = $user->height_cm ?? 170;
+
         // Calculate BMI
         $heightInMeters = $height / 100;
-        $bmi = $this->weight / ($heightInMeters * $heightInMeters);
+        $this->bmi = $this->weight / ($heightInMeters * $heightInMeters);
 
         BodyMetric::create([
             'user_id' => Auth::id(),
@@ -105,7 +112,7 @@ class ProgressTracker extends Component
             'weight_kg' => $this->weight,
             'body_fat_pct' => $this->bodyFat,
             'waist_cm' => $this->waist,
-            'bmi' => round($bmi, 2)
+            'bmi' => round($this->bmi, 2)
         ]);
 
         // Update user's current weight
@@ -115,14 +122,8 @@ class ProgressTracker extends Component
         session()->flash('message', 'Body metrics updated successfully!');
     }
 
-    /**
-     * Render the component view
-     *
-     * @return \Illuminate\View\View
-     */
     public function render(): View
     {
-        return view('livewire.progress-tracker')
-            ->layout('layouts.app');
+        return view('livewire.progress-tracker');
     }
 }

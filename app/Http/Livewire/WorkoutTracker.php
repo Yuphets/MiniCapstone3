@@ -11,6 +11,8 @@ use Illuminate\View\View;
 
 class WorkoutTracker extends Component
 {
+    protected $layout = 'layouts.app';
+
     public $workouts = [];
     public $activities;
     public $showForm = false;
@@ -64,8 +66,10 @@ class WorkoutTracker extends Component
     {
         $this->validate();
         $activity = ActivityMaster::find($this->form['activity_id']);
+
         if ($activity) {
             $caloriesBurned = $activity->calories_per_min * $this->form['duration_min'];
+
             $workoutData = [
                 'user_id' => Auth::id(),
                 'activity_id' => $this->form['activity_id'],
@@ -157,7 +161,6 @@ class WorkoutTracker extends Component
      */
     public function render(): View
     {
-        return view('livewire.workout-tracker')
-            ->layout('layouts.app');
+        return view('livewire.workout-tracker');
     }
 }
