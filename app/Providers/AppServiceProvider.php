@@ -4,8 +4,6 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
-use App\Http\Livewire\WorkoutTracker;
-use App\Http\Livewire\MealTracker;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,7 +20,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Livewire::component('workout-tracker', WorkoutTracker::class);
-        Livewire::component('meal-tracker', MealTracker::class);
+        // Register Livewire components
+        Livewire::component('dashboard', \App\Http\Livewire\Dashboard::class);
+        Livewire::component('workout-tracker', \App\Http\Livewire\WorkoutTracker::class);
+        Livewire::component('meal-tracker', \App\Http\Livewire\MealTracker::class);
+        Livewire::component('progress-tracker', \App\Http\Livewire\ProgressTracker::class);
     }
 }

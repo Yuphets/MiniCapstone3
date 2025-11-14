@@ -11,8 +11,6 @@ use Illuminate\View\View;
 
 class MealTracker extends Component
 {
-    protected $layout = 'layouts.app';
-
     public $meals = [];
     public $foodItems = [];
     public $showMealForm = false;
@@ -20,13 +18,11 @@ class MealTracker extends Component
     public $selectedMealType = 'breakfast';
     public $searchQuery = '';
     public $selectedMealForFood = null;
-
     public $mealForm = [
         'meal_date' => '',
         'meal_type' => 'breakfast',
         'notes' => ''
     ];
-
     public $foodForm = [
         'food_item_id' => '',
         'quantity' => 1
@@ -57,14 +53,13 @@ class MealTracker extends Component
         foreach ($meals as $meal) {
             $groupedMeals[$meal->meal_type][] = $meal;
         }
-        
+
         $this->meals = $groupedMeals;
     }
 
     public function loadFoodItems(): void
     {
         $query = FoodItem::query();
-
         if ($this->searchQuery) {
             $query->where('name', 'like', '%' . $this->searchQuery . '%')
                   ->orWhere('brand', 'like', '%' . $this->searchQuery . '%');
@@ -82,7 +77,6 @@ class MealTracker extends Component
     public function saveMealLog(): void
     {
         $this->validate();
-
         $mealLog = MealLog::create([
             'user_id' => Auth::id(),
             'meal_date' => $this->mealForm['meal_date'],
@@ -93,7 +87,6 @@ class MealTracker extends Component
         $this->showMealForm = false;
         $this->resetMealForm();
         $this->loadMeals();
-
         session()->flash('message', 'Meal logged successfully!');
     }
 
@@ -119,11 +112,9 @@ class MealTracker extends Component
     public function addFoodToMeal(): void
     {
         $foodItem = FoodItem::find($this->foodForm['food_item_id']);
-
         if ($foodItem && $this->selectedMealForFood) {
             // Calculate nutrition based on quantity
             $servingRatio = $this->foodForm['quantity'] / ($foodItem->serving_qty ?: 1);
-
             $calories = $foodItem->calories * $servingRatio;
             $protein = $foodItem->protein_g * $servingRatio;
             $carbs = $foodItem->carbs_g * $servingRatio;
@@ -150,7 +141,6 @@ class MealTracker extends Component
             $this->showFoodSearch = false;
             $this->selectedMealForFood = null;
             $this->loadMeals();
-
             session()->flash('message', 'Food item added to meal!');
         }
     }
@@ -164,7 +154,6 @@ class MealTracker extends Component
     public function removeFoodItem(int $mealItemId): void
     {
         $mealItem = MealItem::find($mealItemId);
-
         if ($mealItem) {
             // Get the meal log before deletion to update totals
             $mealLog = $mealItem->mealLog;
@@ -190,13 +179,11 @@ class MealTracker extends Component
     public function deleteMeal(int $mealId): void
     {
         $meal = MealLog::find($mealId);
-
         if ($meal) {
             // Delete all associated meal items first
             $meal->mealItems()->delete();
             // Then delete the meal
             $meal->delete();
-
             $this->loadMeals();
             session()->flash('message', 'Meal deleted successfully!');
         }
@@ -239,6 +226,7 @@ class MealTracker extends Component
 
     public function render(): View
     {
-        return view('livewire.meal-tracker');
+        return view('livewire.meal-tracker')
+            ->layout('layouts.app');
     }
 }

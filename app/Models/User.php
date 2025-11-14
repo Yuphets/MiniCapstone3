@@ -11,15 +11,13 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     protected $fillable = [
+        'name',
         'username',
         'email',
         'password',
-        'full_name',
-        'dob',
-        'gender',
         'height_cm',
         'weight_kg',
-        'goal_text',
+        'is_admin',
     ];
 
     protected $hidden = [
@@ -28,9 +26,9 @@ class User extends Authenticatable
     ];
 
     protected $casts = [
-        'dob' => 'date',
         'height_cm' => 'decimal:2',
         'weight_kg' => 'decimal:2',
+        'is_admin' => 'boolean',
     ];
 
     // Relationships
@@ -67,7 +65,7 @@ class User extends Authenticatable
     // Helper methods
     public function getCurrentWeightAttribute()
     {
-        return $this->bodyMetrics()->latest()->first()?->weight_kg;
+        return $this->bodyMetrics()->latest()->first()?->weight_kg ?? $this->weight_kg;
     }
 
     public function getCurrentBmiAttribute()
@@ -78,5 +76,10 @@ class User extends Authenticatable
     public function getActiveGoalsAttribute()
     {
         return $this->goals()->where('status', 'active')->get();
+    }
+
+    public function isAdmin()
+    {
+        return $this->is_admin === true;
     }
 }

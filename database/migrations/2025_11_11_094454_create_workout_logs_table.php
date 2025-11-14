@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('workout_logs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('activity_id')->nullable()->constrained('activities_master')->onDelete('set null');
+            $table->foreignId('activity_id')->constrained('activities_master');
             $table->date('activity_date');
             $table->time('start_time')->nullable();
             $table->integer('duration_min');

@@ -26,6 +26,7 @@ class ActivityMaster extends Model
 
     public function workoutLogs()
     {
-        return $this->hasMany(WorkoutLog::class);
+        // Make sure this uses 'activity_id' as the foreign key
+        return $this->hasMany(WorkoutLog::class, 'activity_id');
     }
 }

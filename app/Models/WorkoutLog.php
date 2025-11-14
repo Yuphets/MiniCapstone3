@@ -11,7 +11,7 @@ class WorkoutLog extends Model
 
     protected $fillable = [
         'user_id',
-        'activity_id',
+        'activity_id', // This should be the column name
         'activity_date',
         'start_time',
         'duration_min',
@@ -32,6 +32,7 @@ class WorkoutLog extends Model
 
     public function activity()
     {
+        // Make sure this uses 'activity_id' as the foreign key
         return $this->belongsTo(ActivityMaster::class, 'activity_id');
     }
 }

@@ -12,10 +12,10 @@
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- Livewire Styles -->
     @livewireStyles
-    
+
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -57,6 +57,14 @@
                             <a href="{{ route('progress') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
                                 Progress
                             </a>
+                            <!-- ADMIN PANEL LINK - CORRECTED VERSION -->
+                            @auth
+    @if(auth()->user()->is_admin)
+        <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
+            Admin Panel
+        </a>
+    @endif
+@endauth
                         </div>
                     </div>
                     <div class="flex items-center space-x-4">
@@ -80,7 +88,7 @@
 
     <!-- Livewire Scripts -->
     @livewireScripts
-    
+
     <!-- Alpine.js for Livewire -->
     <script src="//unpkg.com/alpinejs" defer></script>
 </body>

@@ -22,9 +22,6 @@ class Dashboard extends Component
     public $currentWeight = 0;
     public $bmi = 0;
 
-    // Add this line to specify the layout
-    protected $layout = 'layouts.app';
-
     public function mount()
     {
         $this->selectedDate = today()->format('Y-m-d');
@@ -67,8 +64,8 @@ class Dashboard extends Component
             $this->fats = $mealLogs->sum(function($meal) {
                 return $meal->mealItems->sum('fats_g') ?? 0;
             });
+
         } catch (\Exception $e) {
-            // If there are database issues, set defaults
             $this->protein = 0;
             $this->carbs = 0;
             $this->fats = 0;
@@ -94,7 +91,6 @@ class Dashboard extends Component
     {
         $userId = Auth::id();
         $today = $this->selectedDate;
-
         $stats = [
             'meals_logged' => MealLog::where('user_id', $userId)
                 ->where('meal_date', $today)
@@ -105,7 +101,7 @@ class Dashboard extends Component
             'protein_consumed' => $this->protein,
         ];
 
-        // Remove the ->layout() call and just return the view
-        return view('livewire.dashboard', compact('stats'));
+        return view('livewire.dashboard', compact('stats'))
+            ->layout('layouts.app');
     }
 }

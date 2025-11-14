@@ -12,9 +12,6 @@ use Illuminate\View\View;
 
 class ProgressTracker extends Component
 {
-    // Use the layout property instead of method
-    protected $layout = 'layouts.app';
-
     public $weight;
     public $bodyFat;
     public $waist;
@@ -92,14 +89,12 @@ class ProgressTracker extends Component
     public function saveBodyMetric(): void
     {
         $this->validate();
-
         $user = Auth::user();
         if (!$user) {
             return;
         }
 
         $height = $user->height_cm ?? 170; // Default height if not set
-
         // Calculate BMI
         $heightInMeters = $height / 100;
         $bmi = $this->weight / ($heightInMeters * $heightInMeters);
@@ -127,6 +122,7 @@ class ProgressTracker extends Component
      */
     public function render(): View
     {
-        return view('livewire.progress-tracker');
+        return view('livewire.progress-tracker')
+            ->layout('layouts.app');
     }
 }

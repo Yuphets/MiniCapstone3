@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use App\Models\BodyMetric;
 
 class AuthController extends Controller
 {
@@ -15,23 +16,26 @@ class AuthController extends Controller
     }
 
     public function login(Request $request)
-    {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+{
+    $credentials = $request->validate([
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
 
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-            
-            // Redirect to dashboard
-            return redirect()->intended('/dashboard');
+    if (Auth::attempt($credentials)) {
+        $request->session()->regenerate();
+
+        // Redirect to dashboard based on user role
+        if (Auth::user()->is_admin) {
+            return redirect()->intended('/admin/dashboard');
         }
-
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ])->onlyInput('email');
+        return redirect()->intended('/dashboard');
     }
+
+    return back()->withErrors([
+        'email' => 'The provided credentials do not match our records.',
+    ])->onlyInput('email');
+}
 
     public function showRegister()
     {
@@ -58,18 +62,30 @@ class AuthController extends Controller
             'weight_kg' => $validated['weight_kg'] ?? null,
         ]);
 
-        Auth::login($user);
+        // Create initial body metric record if weight is provided
+        if ($validated['weight_kg'] && $validated['height_cm']) {
+            $heightInMeters = $validated['height_cm'] / 100;
+            $bmi = $validated['weight_kg'] / ($heightInMeters * $heightInMeters);
 
+            BodyMetric::create([
+                'user_id' => $user->id,
+                'measured_at' => now(),
+                'weight_kg' => $validated['weight_kg'],
+                'body_fat_pct' => null,
+                'waist_cm' => null,
+                'bmi' => round($bmi, 2)
+            ]);
+        }
+
+        Auth::login($user);
         return redirect('/dashboard');
     }
 
     public function logout(Request $request)
     {
         Auth::logout();
-
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
         return redirect('/');
     }
 }
