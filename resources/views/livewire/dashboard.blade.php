@@ -1,330 +1,465 @@
-<div class="min-h-screen bg-gray-50">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Mobile Content -->
+<style>
+    /* Custom styles to handle chart height on smaller screens and ensure smooth carousel behavior */
+    .carousel {
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        overflow-x: auto;
+        gap: 1rem;
+        padding: 1rem 0;
+    }
+    .carousel::-webkit-scrollbar {
+        display: none;
+    }
+    .carousel-card {
+        scroll-snap-align: start;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-radius: 1rem;
+    }
+    canvas {
+        width: 100% !important;
+        height: 100% !important;
+    }
+    /* Add smooth transition to the scroll indicator dot */
+    .dot.active {
+        background-color: #3b82f6; /* Blue-500 equivalent */
+        width: 10px;
+    }
+</style>
+
+<div class="min-h-screen bg-gray-100 font-sans">
+
+    <!-- Assume the following variables are defined in your backend/framework context (e.g., Blade in Laravel): -->
+    <!-- $stats: array containing meals_logged, protein_consumed, workouts_logged -->
+    <!-- $carbs, $fats, $protein: current consumed macros -->
+    <!-- $carbsGoal, $fatsGoal, $proteinGoal: daily macro goals -->
+    <!-- $caloriesIn: current calories consumed -->
+    <!-- $calorieGoal: daily calorie goal -->
+    <!-- auth()->user()->username: The current user's name -->
+    <!-- route('...'): Your application's route helper -->
+
+    <!-- ========================================================================= -->
+    <!--                               MOBILE LAYOUT (md:hidden)                   -->
+    <!-- ========================================================================= -->
+
     <div class="md:hidden">
         <!-- ===== MOBILE HEADER - Compact Version ===== -->
-        <header class="w-full max-w-6xl mx-auto flex items-center justify-between px-4 py-3 bg-white shadow-sm border-b">
-            <!-- Left: Profile with Greeting -->
-            <div class="flex items-center space-x-3">
-                <img src="/images/jastin.jpg" alt="Profile" class="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover shadow-md border-2">
-                <div class="flex flex-col">
-                    <span class="text-xs text-gray-500">Welcome back,</span>
-                    <h2 class="text-sm font-bold text-gray-900">{{ auth()->user()->username }}</h2>
-                </div>
-            </div>
 
-            <!-- Center: Logo -->
-            <div class="flex-1 flex justify-center relative">
-                <img src="/images/nutriquest-logo sm.png" alt="NutriQuest Logo" class="h-10 md:h-12 lg:h-16 object-contain drop-shadow-md">
-            </div>
 
-            <!-- Right: Logout Button -->
-            <div class="flex items-center">
-                <form method="POST" action="{{ route('logout') }}" class="inline">
-                    @csrf
-                    <button type="submit"
-                            class="flex items-center space-x-1 text-gray-600 hover:text-red-600 transition duration-200 p-2 rounded-lg hover:bg-red-50 group"
-                            title="Logout">
-                        <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                        </svg>
-                        <span class="text-xs font-medium hidden sm:inline">Logout</span>
-                    </button>
-                </form>
-            </div>
-        </header>
-
-        <!-- Mobile Navigation -->
-        <nav class="bg-white border-t border-gray-200 fixed bottom-0 left-0 right-0">
+        <!-- Mobile Navigation (Fixed Bottom) -->
+        <nav class="bg-white border-t border-gray-200 fixed bottom-0 left-0 right-0 z-40">
             <div class="flex justify-around items-center h-16">
-                <a href="{{ route('dashboard') }}" class="flex flex-col items-center justify-center px-3 py-2 {{ request()->routeIs('dashboard') ? 'text-primary' : 'text-gray-500' }} hover:text-gray-700">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                    </svg>
+                <!-- Links using Mock Route Names -->
+                <a href="#" class="flex flex-col items-center justify-center px-3 py-2 text-indigo-600 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                     <span class="text-xs mt-1">Dashboard</span>
                 </a>
-                <a href="{{ route('workouts') }}" class="flex flex-col items-center justify-center px-3 py-2 {{ request()->routeIs('workouts') ? 'text-primary' : 'text-gray-500' }} hover:text-gray-700">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                    </svg>
+                <a href="#" class="flex flex-col items-center justify-center px-3 py-2 text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                     <span class="text-xs mt-1">Workouts</span>
                 </a>
-                <a href="{{ route('meals') }}" class="flex flex-col items-center justify-center px-3 py-2 {{ request()->routeIs('meals') ? 'text-primary' : 'text-gray-500' }} hover:text-gray-700">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
+                <a href="#" class="flex flex-col items-center justify-center px-3 py-2 text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     <span class="text-xs mt-1">Meals</span>
                 </a>
-                <a href="{{ route('diary') }}" class="flex flex-col items-center justify-center px-3 py-2 {{ request()->routeIs('diary') ? 'text-primary' : 'text-gray-500' }} hover:text-gray-700">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
+                <a href="#" class="flex flex-col items-center justify-center px-3 py-2 text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                     <span class="text-xs mt-1">Diary</span>
                 </a>
-                <a href="{{ route('progress') }}" class="flex flex-col items-center justify-center px-3 py-2 {{ request()->routeIs('progress') ? 'text-primary' : 'text-gray-500' }} hover:text-gray-700">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                    </svg>
+                <a href="#" class="flex flex-col items-center justify-center px-3 py-2 text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                     <span class="text-xs mt-1">Progress</span>
                 </a>
             </div>
         </nav>
-    </div>
 
-    <!-- Main Content -->
-    <div class="flex flex-col items-center p-4 space-y-4 overflow-x-hidden pb-20 md:pb-4">
-        <!-- === LOGGING PROGRESS CARD === -->
-        <a href="{{ route('diary') }}" class="block w-full max-w-sm lg:max-w-md">
-            <div class="carousel-card relative bg-white rounded-2xl shadow-sm p-4 md:p-6 flex flex-col items-center w-full snap-start flex-shrink-0 cursor-pointer">
-                <h2 class="text-lg md:text-xl font-semibold text-center text-gray-700 mb-2">Logging Progress</h2>
-                <p class="text-center font-semibold text-green-600 text-base md:text-lg mb-3">
-                    @if(($stats['meals_logged'] ?? 0) >= 3)
-                        Crushing it!
-                    @elseif(($stats['meals_logged'] ?? 0) >= 1)
-                        Good start!
-                    @else
-                        Let's get started!
-                    @endif
-                </p>
-
-                <div class="w-32 h-32 md:w-36 md:h-36 lg:w-40 lg:h-40 relative">
-                    <canvas id="curvedProgressArc"></canvas>
-                    <div class="absolute inset-0 flex flex-col items-center justify-center">
-                        <span class="text-lg md:text-xl font-bold text-gray-800">{{ $stats['meals_logged'] ?? 0 }} / 4 Meals</span>
-                        <span class="text-sm text-gray-500 mt-0.5">Logged</span>
+        <!-- Main Content for Mobile -->
+        <div class="flex flex-col items-center p-4 space-y-4 overflow-x-hidden pb-20">
+            <!-- === LOGGING PROGRESS CARD (Mobile Version) === -->
+            <a href="#" class="block w-full max-w-sm lg:max-w-md">
+                <div class="carousel-card relative bg-white rounded-2xl shadow-sm p-4 flex flex-col items-center w-full snap-start flex-shrink-0 cursor-pointer">
+                    <h2 class="text-lg font-semibold text-center text-gray-700 mb-2">Logging Progress</h2>
+                    <p class="text-center font-semibold text-green-600 text-base mb-3">Crushing it!</p>
+                    <div class="w-32 h-32 relative">
+                        <canvas id="curvedProgressArc"></canvas>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span class="text-lg font-bold text-gray-800">3 / 4 Meals</span>
+                            <span class="text-sm text-gray-500 mt-0.5">Logged</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-center mt-4 text-gray-600 leading-snug">
+                        You've logged <span class="font-bold">3 meals</span> and
+                        <span class="font-bold">120g of protein</span>.
+                    </p>
+                </div>
+            </a>
+            <!-- === CAROUSEL CONTAINER (Mobile Only) === -->
+            <div class="carousel-container relative w-full max-w-6xl">
+                <div id="cardCarousel" class="carousel flex overflow-x-auto gap-4 p-4 scroll-smooth snap-x snap-mandatory">
+                    <!-- MACRO CARD (Mobile Version) -->
+                    <div class="carousel-card relative bg-white rounded-2xl shadow-sm p-4 flex flex-col items-center w-full max-w-sm snap-start flex-shrink-0 cursor-pointer"
+                        onclick="openMacroModal()">
+                        <h2 class="text-lg font-semibold mb-4 text-center">MACRO</h2>
+                        <div class="flex justify-around w-full gap-2">
+                            <!-- CARBS -->
+                            <div class="flex flex-col items-center relative">
+                                <p class="text-sm font-semibold mb-2" style="color: #3B82F6;">Carbs</p>
+                                <div class="relative flex items-center justify-center">
+                                    <canvas id="carbsChart" class="w-20 h-20"></canvas>
+                                    <div class="absolute flex flex-col items-center justify-center">
+                                        <p class="text-base font-bold text-gray-800 leading-tight" id="carbsRemaining">150</p>
+                                        <p class="text-xs text-gray-500 mt-0.5">Remaining</p>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-600 mt-1">Goal: <span id="carbsGoalText">200</span>g</p>
+                            </div>
+                            <!-- FATS -->
+                            <div class="flex flex-col items-center relative">
+                                <p class="text-sm font-semibold mb-2" style="color: #F59E0B;">Fats</p>
+                                <div class="relative flex items-center justify-center">
+                                    <canvas id="fatsChart" class="w-20 h-20"></canvas>
+                                    <div class="absolute flex flex-col items-center justify-center">
+                                        <p class="text-base font-bold text-gray-800 leading-tight" id="fatsRemaining">45</p>
+                                        <p class="text-xs text-gray-500 mt-0.5">Remaining</p>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-600 mt-1">Goal: <span id="fatsGoalText">60</span>g</p>
+                            </div>
+                            <!-- PROTEIN -->
+                            <div class="flex flex-col items-center relative">
+                                <p class="text-sm font-semibold mb-2" style="color: #10B981;">Protein</p>
+                                <div class="relative flex items-center justify-center">
+                                    <canvas id="proteinChart" class="w-20 h-20"></canvas>
+                                    <div class="absolute flex flex-col items-center justify-center">
+                                        <p class="text-base font-bold text-gray-800 leading-tight" id="proteinRemaining">100</p>
+                                        <p class="text-xs text-gray-500 mt-0.5">Remaining</p>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-600 mt-1">Goal: <span id="proteinGoalText">150</span>g</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- CALORIE GOAL CARD (Mobile Version) -->
+                    <div class="carousel-card relative bg-white rounded-2xl shadow-sm p-4 flex flex-col items-center w-full max-w-sm snap-start flex-shrink-0 cursor-pointer"
+                        onclick="openCalorieModal()">
+                        <h2 class="text-lg font-semibold mb-4 text-center">Calorie Goal</h2>
+                        <div class="relative w-32 h-32 flex items-center justify-center">
+                            <canvas id="calorieChart" class="w-full h-full"></canvas>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                                <span id="caloriesRemainingText" class="text-lg font-bold text-gray-800 leading-none">1500</span>
+                                <span class="text-sm text-gray-500 mt-1">Remaining</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between mt-4 w-full text-xs px-2">
+                            <span>Goal: <strong id="calorieGoalText">2000</strong> kcal</span>
+                            <span>Consumed: <strong id="caloriesConsumedFooter">500</strong> kcal</span>
+                        </div>
                     </div>
                 </div>
-
-                <p class="text-xs md:text-sm text-center mt-4 text-gray-600 leading-snug">
-                    You've logged <span class="font-bold">{{ $stats['meals_logged'] ?? 0 }} meals</span> and
-                    <span class="font-bold">{{ $stats['protein_consumed'] ?? 0 }}g of protein</span>.
-                </p>
-            </div>
-        </a>
-
-        <!-- === CAROUSEL CONTAINER === -->
-        <div class="carousel-container relative w-full max-w-6xl">
-            <div id="cardCarousel" class="carousel flex overflow-x-auto gap-4 p-4 scroll-smooth snap-x snap-mandatory">
-                <!-- MACRO CARD -->
-                <div class="carousel-card relative bg-white rounded-2xl shadow-sm p-4 md:p-6 flex flex-col items-center w-full max-w-sm lg:max-w-md snap-start flex-shrink-0 cursor-pointer"
-                     onclick="openMacroModal()">
-                    <h2 class="text-lg md:text-xl font-semibold mb-4 md:mb-6 text-center">MACRO</h2>
-                    <div class="flex justify-around w-full gap-2 md:gap-4">
-                        <!-- CARBS -->
-                        <div class="flex flex-col items-center relative">
-                            <p class="text-sm md:text-base font-semibold mb-2 md:mb-3" style="color: #3B82F6;">Carbs</p>
-                            <div class="relative flex items-center justify-center">
-                                <canvas id="carbsChart" class="w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28"></canvas>
-                                <div class="absolute flex flex-col items-center justify-center">
-                                    <p class="text-base md:text-lg font-bold text-gray-800 leading-tight" id="carbsRemaining">{{ max(0, $carbsGoal - $carbs) }}</p>
-                                    <p class="text-xs text-gray-500 mt-0.5">Remaining</p>
-                                </div>
-                            </div>
-                            <p class="text-xs text-gray-600 mt-1">Goal: <span id="carbsGoalText">{{ $carbsGoal }}</span>g</p>
-                        </div>
-                        <!-- FATS -->
-                        <div class="flex flex-col items-center relative">
-                            <p class="text-sm md:text-base font-semibold mb-2 md:mb-3" style="color: #F59E0B;">Fats</p>
-                            <div class="relative flex items-center justify-center">
-                                <canvas id="fatsChart" class="w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28"></canvas>
-                                <div class="absolute flex flex-col items-center justify-center">
-                                    <p class="text-base md:text-lg font-bold text-gray-800 leading-tight" id="fatsRemaining">{{ max(0, $fatsGoal - $fats) }}</p>
-                                    <p class="text-xs text-gray-500 mt-0.5">Remaining</p>
-                                </div>
-                            </div>
-                            <p class="text-xs text-gray-600 mt-1">Goal: <span id="fatsGoalText">{{ $fatsGoal }}</span>g</p>
-                        </div>
-                        <!-- PROTEIN -->
-                        <div class="flex flex-col items-center relative">
-                            <p class="text-sm md:text-base font-semibold mb-2 md:mb-3" style="color: #10B981;">Protein</p>
-                            <div class="relative flex items-center justify-center">
-                                <canvas id="proteinChart" class="w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28"></canvas>
-                                <div class="absolute flex flex-col items-center justify-center">
-                                    <p class="text-base md:text-lg font-bold text-gray-800 leading-tight" id="proteinRemaining">{{ max(0, $proteinGoal - $protein) }}</p>
-                                    <p class="text-xs text-gray-500 mt-0.5">Remaining</p>
-                                </div>
-                            </div>
-                            <p class="text-xs text-gray-600 mt-1">Goal: <span id="proteinGoalText">{{ $proteinGoal }}</span>g</p>
-                        </div>
-                    </div>
-                </div>
-
-               <!-- CALORIE GOAL CARD -->
-                <div class="carousel-card relative bg-white rounded-2xl shadow-sm p-4 md:p-6 flex flex-col items-center w-full max-w-sm lg:max-w-md snap-start flex-shrink-0 cursor-pointer"
-                     onclick="openCalorieModal()">
-                    <h2 class="text-lg md:text-xl font-semibold mb-4 md:mb-6 text-center">Calorie Goal</h2>
-                    <div class="relative w-32 h-32 md:w-36 md:h-36 lg:w-40 lg:h-40 flex items-center justify-center">
-                        <canvas id="calorieChart" class="w-full h-full"></canvas>
-                        <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
-                            <span id="caloriesRemainingText" class="text-lg md:text-xl font-bold text-gray-800 leading-none">{{ max(0, $calorieGoal - $caloriesIn) }}</span>
-                            <span class="text-sm text-gray-500 mt-1">Remaining</span>
-                        </div>
-                    </div>
-                    <div class="flex justify-between mt-4 w-full text-xs md:text-sm px-2 md:px-4">
-                        <span>Goal: <strong id="calorieGoalText">{{ $calorieGoal }}</strong> kcal</span>
-                        <span>Consumed: <strong id="caloriesConsumedFooter">{{ $caloriesIn }}</strong> kcal</span>
-                    </div>
+                <!-- DOT INDICATORS -->
+                <div id="carouselDots" class="flex justify-center mt-4 space-x-2">
+                    <span class="dot w-2.5 h-2.5 bg-gray-300 rounded-full active"></span>
+                    <span class="dot w-2.5 h-2.5 bg-gray-300 rounded-full"></span>
                 </div>
             </div>
-
-            <!-- DOT INDICATORS -->
-            <div id="carouselDots" class="flex justify-center mt-4 space-x-2">
-                <span class="dot w-2.5 h-2.5 bg-gray-300 rounded-full"></span>
-                <span class="dot w-2.5 h-2.5 bg-gray-300 rounded-full"></span>
-            </div>
-        </div>
-
-        <!-- === BOTTOM CARDS CONTAINER === -->
-        <div class="w-full max-w-6xl mx-auto flex flex-col md:flex-row gap-4 p-4">
-            <!-- === Steps Card === -->
-            <div x-data="{ open: false, dontTrack: false }" class="flex-1">
-                <div
-                    @click="open = true"
-                    class="bg-white rounded-2xl shadow-md p-4 md:p-6 flex flex-col justify-center cursor-pointer h-32 md:h-40">
-
-                    <div class="text-center">
-                        <p class="text-gray-800 font-semibold text-lg md:text-xl mb-1">Steps</p>
-                        <p class="text-gray-500 text-sm md:text-base">Connect to track steps</p>
-                    </div>
-                </div>
-
-                <!-- Steps Modal -->
-                <div
-                    x-show="open"
-                    x-transition
-                    class="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
+            <!-- === BOTTOM CARDS CONTAINER (Steps & Exercise) === -->
+            <div class="w-full max-w-6xl mx-auto flex gap-4 p-4">
+                <!-- === Steps Card (Mobile Version) === -->
+                <div x-data="{ open: false, dontTrack: false }" class="flex-1">
                     <div
-                        @click.away="open = false"
-                        class="bg-white rounded-2xl p-6 w-full max-w-sm md:max-w-md shadow-lg space-y-4">
-
-                        <h2 class="text-lg md:text-xl font-semibold text-gray-800 text-center">Track Steps</h2>
-
-                        <button
-                            class="w-full flex items-center justify-center gap-2 bg-blue-500 text-white px-4 py-3 rounded-xl hover:bg-blue-600 transition text-sm md:text-base">
-                            <span class="text-xl font-bold">+</span> Add Device
-                        </button>
-
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" x-model="dontTrack" class="w-4 h-4 md:w-5 md:h-5 rounded border-gray-300">
-                            <span class="text-gray-700 text-sm md:text-base">Don't track steps</span>
-                        </label>
-
-                        <button @click="open = false" class="w-full text-center text-gray-500 hover:text-gray-700 text-sm md:text-base">Cancel</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- === Exercise Card === -->
-            <div x-data="{ open: false }" class="flex-1 relative">
-                <div
-                    class="bg-white rounded-2xl shadow-md p-4 md:p-6 flex flex-col justify-center cursor-pointer h-32 md:h-40">
-
-                    <!-- Header with Exercise text and + icon -->
-                    <div class="flex items-center justify-between mb-2">
-                        <p @click="window.location.href='{{ route('workouts') }}'" class="text-gray-800 font-semibold text-lg md:text-xl m-0 cursor-pointer">Exercise</p>
-                        <button @click.stop="open = true" class="text-2xl md:text-3xl font-extrabold text-gray-800 leading-none">+</button>
-                    </div>
-
-                    <!-- Card details -->
-                    <div class="text-center">
-                        <p @click="window.location.href='{{ route('workouts') }}'" class="text-gray-500 text-sm md:text-base mb-1 cursor-pointer">{{ $caloriesOut }} kcal</p>
-                        <p @click="window.location.href='{{ route('workouts') }}'" class="text-gray-400 text-xs md:text-sm cursor-pointer">{{ $stats['workouts_logged'] ?? 0 }} workouts logged</p>
-                    </div>
-                </div>
-
-                <!-- Exercise Modal -->
-                <div
-                    x-show="open"
-                    x-transition
-                    class="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
-                    <div
-                        @click.away="open = false"
-                        class="bg-white rounded-2xl p-6 w-full max-w-sm md:max-w-md shadow-lg space-y-4">
-
-                        <h2 class="text-lg md:text-xl font-semibold text-gray-800 text-center">Exercises</h2>
-
-                        <!-- Exercise Choices -->
-                        <div class="flex flex-col gap-3">
-                            <a href="{{ route('workouts') }}" class="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 md:p-3 rounded">
-                                <input type="radio" name="exerciseType" value="cardiovascular" class="w-4 h-4 md:w-5 md:h-5 text-green-500">
-                                <span class="text-gray-800 font-medium text-sm md:text-base">Cardiovascular</span>
-                            </a>
-                            <a href="{{ route('workouts') }}" class="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 md:p-3 rounded">
-                                <input type="radio" name="exerciseType" value="strength" class="w-4 h-4 md:w-5 md:h-5 text-yellow-500">
-                                <span class="text-gray-800 font-medium text-sm md:text-base">Strength</span>
-                            </a>
+                        @click="open = true"
+                        class="bg-white rounded-2xl shadow-md p-4 flex flex-col justify-center cursor-pointer h-32">
+                        <div class="text-center">
+                            <p class="text-gray-800 font-semibold text-lg mb-1">Steps</p>
+                            <p class="text-gray-500 text-sm">Connect to track steps</p>
                         </div>
-
-                        <button @click="open = false" class="w-full text-center text-gray-500 hover:text-gray-700 text-sm md:text-base">Cancel</button>
+                    </div>
+                    <!-- Steps Modal (Mobile) -->
+                    <div x-show="open" x-transition class="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
+                        <div @click.away="open = false" class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-lg space-y-4">
+                            <h2 class="text-lg font-semibold text-gray-800 text-center">Track Steps</h2>
+                            <button
+                                class="w-full flex items-center justify-center gap-2 bg-blue-500 text-white px-4 py-3 rounded-xl hover:bg-blue-600 transition text-sm">
+                                <span class="text-xl font-bold">+</span> Add Device
+                            </button>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" x-model="dontTrack" class="w-4 h-4 rounded border-gray-300">
+                                <span class="text-gray-700 text-sm">Don't track steps</span>
+                            </label>
+                            <button @click="open = false" class="w-full text-center text-gray-500 hover:text-gray-700 text-sm">Cancel</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- === QUICK ACTIONS (Desktop Only) === -->
-        <div class="hidden lg:block w-full max-w-6xl mx-auto p-4">
-            <div class="bg-white rounded-2xl shadow-sm p-4 md:p-6">
-                <h3 class="text-lg md:text-xl font-semibold mb-4 text-center">Quick Actions</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
-                    <a href="{{ route('workouts') }}"
-                       class="bg-blue-100 text-blue-700 py-3 px-4 rounded-xl text-center font-medium hover:bg-blue-200 transition duration-200 flex items-center justify-center gap-2 text-sm md:text-base">
-                        <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                        </svg>
-                        Log Workout
-                    </a>
-                    <a href="{{ route('meals') }}"
-                       class="bg-green-100 text-green-700 py-3 px-4 rounded-xl text-center font-medium hover:bg-green-200 transition duration-200 flex items-center justify-center gap-2 text-sm md:text-base">
-                        <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        Log Meal
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- === DESKTOP STATS GRID (Hidden on mobile) === -->
-        <div class="hidden lg:block w-full max-w-6xl mx-auto p-4">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div class="bg-white rounded-2xl shadow-sm p-6 text-center">
-                    <div class="text-2xl font-bold text-green-600">{{ $stats['meals_logged'] ?? 0 }}</div>
-                    <div class="text-sm text-gray-600">Meals Today</div>
-                </div>
-                <div class="bg-white rounded-2xl shadow-sm p-6 text-center">
-                    <div class="text-2xl font-bold text-blue-600">{{ $stats['workouts_logged'] ?? 0 }}</div>
-                    <div class="text-sm text-gray-600">Workouts</div>
-                </div>
-                <div class="bg-white rounded-2xl shadow-sm p-6 text-center">
-                    <div class="text-2xl font-bold text-purple-600">{{ $stats['protein_consumed'] ?? 0 }}g</div>
-                    <div class="text-sm text-gray-600">Protein</div>
+                <!-- === Exercise Card (Mobile Version) === -->
+                <div x-data="{ open: false }" class="flex-1 relative">
+                    <div
+                        class="bg-white rounded-2xl shadow-md p-4 flex flex-col justify-center cursor-pointer h-32">
+                        <!-- Header with Exercise text and + icon -->
+                        <div class="flex items-center justify-between mb-2">
+                            <p @click="window.location.href='#'" class="text-gray-800 font-semibold text-lg m-0 cursor-pointer">Exercise</p>
+                            <button @click.stop="open = true" class="text-2xl font-extrabold text-gray-800 leading-none">+</button>
+                        </div>
+                        <!-- Card details -->
+                        <div class="text-center">
+                            <p @click="window.location.href='#'" class="text-gray-500 text-sm mb-1 cursor-pointer">300 kcal</p>
+                            <p @click="window.location.href='#'" class="text-gray-400 text-xs cursor-pointer">1 workout logged</p>
+                        </div>
+                    </div>
+                    <!-- Exercise Modal (Mobile) -->
+                    <div x-show="open" x-transition class="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
+                        <div @click.away="open = false" class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-lg space-y-4">
+                            <h2 class="text-lg font-semibold text-gray-800 text-center">Exercises</h2>
+                            <!-- Exercise Choices -->
+                            <div class="flex flex-col gap-3">
+                                <a href="#" class="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                                    <input type="radio" name="exerciseType" value="cardiovascular" class="w-4 h-4 text-green-500">
+                                    <span class="text-gray-800 font-medium text-sm">Cardiovascular</span>
+                                </a>
+                                <a href="#" class="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                                    <input type="radio" name="exerciseType" value="strength" class="w-4 h-4 text-yellow-500">
+                                    <span class="text-gray-800 font-medium text-sm">Strength</span>
+                                </a>
+                            </div>
+                            <button @click="open = false" class="w-full text-center text-gray-500 hover:text-gray-700 text-sm">Cancel</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- === MODALS === -->
+
+    <!-- ========================================================================= -->
+    <!--                               DESKTOP LAYOUT (hidden md:flex)             -->
+    <!-- ========================================================================= -->
+
+    <div class="hidden md:flex min-h-screen bg-gray-100">
+
+
+
+        <!-- ===== MAIN CONTENT AREA ===== -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+
+
+
+            <!-- ===== DASHBOARD CARDS/WIDGETS AREA - SCROLLABLE CONTENT ===== -->
+            <main class="flex-1 overflow-y-auto bg-gray-100 p-6 lg:p-8 z-0">
+
+                <!-- DESKTOP STATS GRID (Simple Counters) -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white rounded-2xl shadow-lg p-6 text-center border-t-4 border-green-500">
+                        <div class="text-4xl font-extrabold text-green-600">3</div>
+                        <div class="text-sm text-gray-600 mt-1">Meals Logged Today</div>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-lg p-6 text-center border-t-4 border-blue-500">
+                        <div class="text-4xl font-extrabold text-blue-600">1</div>
+                        <div class="text-sm text-gray-600 mt-1">Workouts Logged</div>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-lg p-6 text-center border-t-4 border-purple-500">
+                        <div class="text-4xl font-extrabold text-purple-600">120g</div>
+                        <div class="text-sm text-gray-600 mt-1">Protein Consumed</div>
+                    </div>
+                </div>
+
+                <!-- MAIN METRICS GRID (4-Column Layout) -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+
+                    <!-- 1. LOGGING PROGRESS CARD (Desktop Grid Item) -->
+                    <a href="#" class="block">
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col items-center h-full hover:shadow-2xl transition duration-300">
+                            <h2 class="text-xl font-bold text-center text-gray-800 mb-3">Logging Progress</h2>
+                            <p class="text-center font-semibold text-green-600 text-lg mb-4">Crushing it!</p>
+                            <div class="w-36 h-36 relative">
+                                <canvas id="curvedProgressArcDesktop"></canvas>
+                                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                    <span class="text-xl font-bold text-gray-800">3 / 4 Meals</span>
+                                    <span class="text-sm text-gray-500 mt-0.5">Logged</span>
+                                </div>
+                            </div>
+                            <p class="text-sm text-center mt-4 text-gray-600 leading-snug">
+                                Log your meals to track your nutrition and hit your daily goals.
+                            </p>
+                        </div>
+                    </a>
+
+                    <!-- 2. MACRO CARD (Desktop Grid Item) -->
+                    <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col items-center h-full cursor-pointer hover:shadow-2xl transition duration-300"
+                        onclick="openMacroModal()">
+                        <h2 class="text-xl font-bold mb-6 text-center">MACRO</h2>
+                        <div class="flex justify-around w-full gap-4">
+                            <!-- CARBS -->
+                            <div class="flex flex-col items-center relative">
+                                <p class="text-base font-semibold mb-3" style="color: #3B82F6;">Carbs</p>
+                                <div class="relative w-24 h-24 flex items-center justify-center">
+                                    <canvas id="carbsChartDesktop"></canvas>
+                                    <div class="absolute flex flex-col items-center justify-center">
+                                        <p class="text-lg font-bold text-gray-800 leading-tight" id="carbsRemainingDesktop">150</p>
+                                        <p class="text-xs text-gray-500 mt-0.5">Remaining</p>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-600 mt-1">Goal: <span id="carbsGoalTextDesktop">200</span>g</p>
+                            </div>
+                            <!-- FATS -->
+                            <div class="flex flex-col items-center relative">
+                                <p class="text-base font-semibold mb-3" style="color: #F59E0B;">Fats</p>
+                                <div class="relative w-24 h-24 flex items-center justify-center">
+                                    <canvas id="fatsChartDesktop"></canvas>
+                                    <div class="absolute flex flex-col items-center justify-center">
+                                        <p class="text-lg font-bold text-gray-800 leading-tight" id="fatsRemainingDesktop">45</p>
+                                        <p class="text-xs text-gray-500 mt-0.5">Remaining</p>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-600 mt-1">Goal: <span id="fatsGoalTextDesktop">60</span>g</p>
+                            </div>
+                            <!-- PROTEIN -->
+                            <div class="flex flex-col items-center relative">
+                                <p class="text-base font-semibold mb-3" style="color: #10B981;">Protein</p>
+                                <div class="relative w-24 h-24 flex items-center justify-center">
+                                    <canvas id="proteinChartDesktop"></canvas>
+                                    <div class="absolute flex flex-col items-center justify-center">
+                                        <p class="text-lg font-bold text-gray-800 leading-tight" id="proteinRemainingDesktop">100</p>
+                                        <p class="text-xs text-gray-500 mt-0.5">Remaining</p>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-600 mt-1">Goal: <span id="proteinGoalTextDesktop">150</span>g</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. CALORIE GOAL CARD (Desktop Grid Item) -->
+                    <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col items-center h-full cursor-pointer hover:shadow-2xl transition duration-300"
+                        onclick="openCalorieModal()">
+                        <h2 class="text-xl font-bold mb-6 text-center">Calorie Goal</h2>
+                        <div class="relative w-36 h-36 flex items-center justify-center">
+                            <canvas id="calorieChartDesktop" class="w-full h-full"></canvas>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                                <span id="caloriesRemainingTextDesktop" class="text-xl font-bold text-gray-800 leading-none">1500</span>
+                                <span class="text-sm text-gray-500 mt-1">Remaining</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between mt-6 w-full text-base px-2">
+                            <span>Goal: <strong id="calorieGoalTextDesktop">2000</strong> kcal</span>
+                            <span>Consumed: <strong id="caloriesConsumedFooterDesktop">500</strong> kcal</span>
+                        </div>
+                    </div>
+
+                    <!-- 4. QUICK ACTIONS & STEP TRACKER (Combined) -->
+                    <div class="space-y-6">
+                        <!-- QUICK ACTIONS -->
+                        <div class="bg-white rounded-2xl shadow-xl p-6 h-full">
+                            <h3 class="text-xl font-bold mb-4 text-center text-gray-800">Quick Log</h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <a href="#"
+                                    class="bg-indigo-600 text-white py-3 px-4 rounded-xl text-center font-semibold hover:bg-indigo-700 transition duration-200 flex items-center justify-center gap-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    Meal
+                                </a>
+                                <a href="#"
+                                    class="bg-green-600 text-white py-3 px-4 rounded-xl text-center font-semibold hover:bg-green-700 transition duration-200 flex items-center justify-center gap-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                    </svg>
+                                    Workout
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- STEPS CARD (Reusing x-data logic) -->
+                        <div x-data="{ open: false, dontTrack: false }" class="bg-white rounded-2xl shadow-xl p-6 h-full cursor-pointer hover:shadow-2xl transition duration-300">
+                            <div @click="open = true" class="flex flex-col justify-center h-full">
+                                <div class="text-center">
+                                    <p class="text-gray-800 font-bold text-xl mb-1">Steps</p>
+                                    <p class="text-gray-500 text-sm">Connect to track steps</p>
+                                </div>
+                            </div>
+                            <!-- Steps Modal for Desktop (Hidden by default) -->
+                            <div x-show="open" x-transition class="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
+                                <div @click.away="open = false" class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-lg space-y-4">
+                                    <h2 class="text-lg font-semibold text-gray-800 text-center">Track Steps</h2>
+                                    <button class="w-full flex items-center justify-center gap-2 bg-blue-500 text-white px-4 py-3 rounded-xl hover:bg-blue-600 transition text-sm">
+                                        <span class="text-xl font-bold">+</span> Add Device
+                                    </button>
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="checkbox" x-model="dontTrack" class="w-4 h-4 rounded border-gray-300">
+                                        <span class="text-gray-700 text-sm">Don't track steps</span>
+                                    </label>
+                                    <button @click="open = false" class="w-full text-center text-gray-500 hover:text-gray-700 text-sm">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EXERCISE CARD (Larger Widget) -->
+                <div x-data="{ open: false }" class="mt-8 bg-white rounded-2xl shadow-xl p-6 hover:shadow-2xl transition duration-300 relative">
+                    <div class="flex items-center justify-between mb-4">
+                        <p @click="window.location.href='#'" class="text-2xl font-bold text-gray-800 m-0 cursor-pointer">Exercise Overview</p>
+                        <button @click.stop="open = true" class="text-3xl font-extrabold text-indigo-600 hover:text-indigo-700 transition leading-none p-2 rounded-full hover:bg-indigo-50">+</button>
+                    </div>
+
+                    <div class="flex justify-around items-center py-4">
+                        <div class="text-center">
+                            <p class="text-4xl font-extrabold text-blue-600">300</p>
+                            <p class="text-lg text-gray-500 mt-1">Calories Burned</p>
+                        </div>
+                         <div class="text-center">
+                            <p class="text-4xl font-extrabold text-green-600">1</p>
+                            <p class="text-lg text-gray-500 mt-1">Workouts Logged</p>
+                        </div>
+                    </div>
+                    <!-- Exercise Modal for Desktop (Hidden by default) -->
+                    <div x-show="open" x-transition class="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
+                        <div @click.away="open = false" class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-lg space-y-4">
+                            <h2 class="text-lg font-semibold text-gray-800 text-center">Exercises</h2>
+                            <div class="flex flex-col gap-3">
+                                <a href="#" class="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                                    <input type="radio" name="exerciseType" value="cardiovascular" class="w-4 h-4 text-green-500">
+                                    <span class="text-gray-800 font-medium text-sm">Cardiovascular</span>
+                                </a>
+                                <a href="#" class="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                                    <input type="radio" name="exerciseType" value="strength" class="w-4 h-4 text-yellow-500">
+                                    <span class="text-gray-800 font-medium text-sm">Strength</span>
+                                </a>
+                            </div>
+                            <button @click="open = false" class="w-full text-center text-gray-500 hover:text-gray-700 text-sm">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PLACEHOLDER FOR LARGE CHART/TABLE - Content Removed to Prevent Blocking -->
+
+
+            </main>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!--                               MODALS (Shared)                             -->
+    <!-- ========================================================================= -->
+
     <!-- Macro Goals Modal -->
     <div id="macroModal" class="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4 hidden">
         <div class="bg-white rounded-2xl p-6 w-full max-w-sm md:max-w-md shadow-lg space-y-4">
             <h2 class="text-lg md:text-xl font-semibold text-gray-800 text-center">Edit Macro Goals</h2>
-
             <div class="space-y-3">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Protein (g)</label>
-                    <input type="number" id="macroProteinInput" value="{{ $proteinGoal }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                    <input type="number" id="macroProteinInput" value="150" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Carbs (g)</label>
-                    <input type="number" id="macroCarbsInput" value="{{ $carbsGoal }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <input type="number" id="macroCarbsInput" value="200" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Fats (g)</label>
-                    <input type="number" id="macroFatsInput" value="{{ $fatsGoal }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                    <input type="number" id="macroFatsInput" value="60" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                 </div>
             </div>
-
             <div class="flex gap-3 pt-2">
                 <button
                     onclick="closeMacroModal()"
@@ -345,12 +480,10 @@
     <div id="calorieModal" class="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4 hidden">
         <div class="bg-white rounded-2xl p-6 w-full max-w-sm md:max-w-md shadow-lg space-y-4">
             <h2 class="text-lg md:text-xl font-semibold text-gray-800 text-center">Edit Calorie Goal</h2>
-
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Daily Calorie Goal (kcal)</label>
-                <input type="number" id="calorieGoalInput" value="{{ $calorieGoal }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                <input type="number" id="calorieGoalInput" value="2000" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
             </div>
-
             <div class="flex gap-3 pt-2">
                 <button
                     onclick="closeCalorieModal()"
@@ -368,401 +501,246 @@
     </div>
 
     <!-- ===== SCRIPTS ===== -->
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Store chart instances so we can update them
-        let progressChart, carbsChartInstance, fatsChartInstance, proteinChartInstance, calorieChartInstance;
-        let chartsInitialized = false;
+        // Mock data initialization
+        let goals = {
+            protein: 150, carbs: 200, fats: 60, calorie: 2000
+        };
+        let consumed = {
+            protein: 50, carbs: 50, fats: 15, calorie: 500, meals: 3
+        };
 
-        // Modal functions
+        let charts = {};
+
+        // Modal Functions
         function openMacroModal() {
             document.getElementById('macroModal').classList.remove('hidden');
         }
-
         function closeMacroModal() {
             document.getElementById('macroModal').classList.add('hidden');
         }
-
         function openCalorieModal() {
             document.getElementById('calorieModal').classList.remove('hidden');
         }
-
         function closeCalorieModal() {
             document.getElementById('calorieModal').classList.add('hidden');
         }
 
-        // Save functions - Using localStorage for persistence
-        function saveMacroGoals() {
-            const proteinGoal = parseInt(document.getElementById('macroProteinInput').value) || 0;
-            const carbsGoal = parseInt(document.getElementById('macroCarbsInput').value) || 0;
-            const fatsGoal = parseInt(document.getElementById('macroFatsInput').value) || 0;
+        // Helper function to update text elements across mobile/desktop
+        function updateText(prefix, macro, remaining, goal) {
+            const elements = [
+                { id: `${prefix}Remaining`, value: remaining },
+                { id: `${prefix}GoalText`, value: goal },
+                { id: `${prefix}RemainingDesktop`, value: remaining },
+                { id: `${prefix}GoalTextDesktop`, value: goal },
+            ];
 
-            const saveButton = document.getElementById('macroSaveButton');
-
-            // Show saving state
-            saveButton.innerHTML = '<svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>Saving...</span>';
-            saveButton.disabled = true;
-
-            // Save to localStorage for persistence
-            localStorage.setItem('macroGoals', JSON.stringify({
-                protein: proteinGoal,
-                carbs: carbsGoal,
-                fats: fatsGoal
-            }));
-
-            // Update UI immediately
-            updateMacroTexts(proteinGoal, carbsGoal, fatsGoal);
-
-            // Close modal and reset button after delay
-            setTimeout(() => {
-                closeMacroModal();
-                saveButton.innerHTML = '<span>Save</span>';
-                saveButton.disabled = false;
-            }, 600);
-        }
-
-        function saveCalorieGoal() {
-            const calorieGoal = parseInt(document.getElementById('calorieGoalInput').value) || 0;
-
-            const saveButton = document.getElementById('calorieSaveButton');
-
-            // Show saving state
-            saveButton.innerHTML = '<svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>Saving...</span>';
-            saveButton.disabled = true;
-
-            // Save to localStorage for persistence
-            localStorage.setItem('calorieGoal', calorieGoal.toString());
-
-            // Update UI immediately
-            updateCalorieText(calorieGoal);
-
-            // Close modal and reset button after delay
-            setTimeout(() => {
-                closeCalorieModal();
-                saveButton.innerHTML = '<span>Save</span>';
-                saveButton.disabled = false;
-            }, 600);
-        }
-
-        // Load saved goals from localStorage
-        function loadSavedGoals() {
-            // Load macro goals
-            const savedMacroGoals = localStorage.getItem('macroGoals');
-            if (savedMacroGoals) {
-                const goals = JSON.parse(savedMacroGoals);
-                updateMacroTexts(goals.protein, goals.carbs, goals.fats);
-
-                // Update modal inputs
-                document.getElementById('macroProteinInput').value = goals.protein;
-                document.getElementById('macroCarbsInput').value = goals.carbs;
-                document.getElementById('macroFatsInput').value = goals.fats;
-            }
-
-            // Load calorie goal
-            const savedCalorieGoal = localStorage.getItem('calorieGoal');
-            if (savedCalorieGoal) {
-                const calorieGoal = parseInt(savedCalorieGoal);
-                updateCalorieText(calorieGoal);
-
-                // Update modal input
-                document.getElementById('calorieGoalInput').value = calorieGoal;
-            }
-        }
-
-        function initializeCharts() {
-            if (chartsInitialized) {
-                return; // Don't reinitialize charts
-            }
-
-            // Load any saved goals first
-            loadSavedGoals();
-
-            // Calculate progress percentages with actual data from Livewire
-            const mealsProgress = {{ $stats['meals_logged'] ?? 0 }} / 5 * 100;
-
-            // Use saved goals or default values
-            const savedMacroGoals = localStorage.getItem('macroGoals');
-            const savedCalorieGoal = localStorage.getItem('calorieGoal');
-
-            const proteinGoal = savedMacroGoals ? JSON.parse(savedMacroGoals).protein : {{ $proteinGoal }};
-            const carbsGoal = savedMacroGoals ? JSON.parse(savedMacroGoals).carbs : {{ $carbsGoal }};
-            const fatsGoal = savedMacroGoals ? JSON.parse(savedMacroGoals).fats : {{ $fatsGoal }};
-            const calorieGoal = savedCalorieGoal ? parseInt(savedCalorieGoal) : {{ $calorieGoal }};
-
-            const carbsProgress = {{ $carbs }} / carbsGoal * 100;
-            const fatsProgress = {{ $fats }} / fatsGoal * 100;
-            const proteinProgress = {{ $protein }} / proteinGoal * 100;
-            const calorieProgress = {{ $caloriesIn }} / calorieGoal * 100;
-
-            // Common chart configuration for equal sizing
-            const commonChartConfig = {
-                type: "doughnut",
-                options: {
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    rotation: -90,
-                    circumference: 360,
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    cutout: '70%',
-                    elements: {
-                        arc: {
-                            borderWidth: 0
-                        }
-                    }
-                }
-            };
-
-            // Logging Progress Arc (different style)
-            try {
-                progressChart = new Chart(document.getElementById("curvedProgressArc"), {
-                    type: "doughnut",
-                    data: {
-                        datasets: [{
-                            data: [mealsProgress, 100 - mealsProgress],
-                            backgroundColor: ["#1C7C6E", "#F1F5F9"],
-                            borderWidth: 0,
-                            cutout: "85%"
-                        }]
-                    },
-                    options: {
-                        rotation: 270,
-                        circumference: 180,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: { enabled: false }
-                        },
-                        responsive: true,
-                        maintainAspectRatio: false
-                    }
-                });
-            } catch (e) {
-                console.log('Progress chart already initialized');
-            }
-
-            // Macro charts - all same size and style
-            try {
-                carbsChartInstance = new Chart(document.getElementById("carbsChart"), {
-                    ...commonChartConfig,
-                    data: {
-                        datasets: [{
-                            data: [Math.min(carbsProgress, 100), 100 - Math.min(carbsProgress, 100)],
-                            backgroundColor: ["#3B82F6", "#F3F4F6"],
-                            borderWidth: 0
-                        }]
-                    }
-                });
-            } catch (e) {
-                console.log('Carbs chart already initialized');
-            }
-
-            try {
-                fatsChartInstance = new Chart(document.getElementById("fatsChart"), {
-                    ...commonChartConfig,
-                    data: {
-                        datasets: [{
-                            data: [Math.min(fatsProgress, 100), 100 - Math.min(fatsProgress, 100)],
-                            backgroundColor: ["#F59E0B", "#F3F4F6"],
-                            borderWidth: 0
-                        }]
-                    }
-                });
-            } catch (e) {
-                console.log('Fats chart already initialized');
-            }
-
-            try {
-                proteinChartInstance = new Chart(document.getElementById("proteinChart"), {
-                    ...commonChartConfig,
-                    data: {
-                        datasets: [{
-                            data: [Math.min(proteinProgress, 100), 100 - Math.min(proteinProgress, 100)],
-                            backgroundColor: ["#10B981", "#F3F4F6"],
-                            borderWidth: 0
-                        }]
-                    }
-                });
-            } catch (e) {
-                console.log('Protein chart already initialized');
-            }
-
-            try {
-                calorieChartInstance = new Chart(document.getElementById("calorieChart"), {
-                    ...commonChartConfig,
-                    data: {
-                        datasets: [{
-                            data: [Math.min(calorieProgress, 100), 100 - Math.min(calorieProgress, 100)],
-                            backgroundColor: ["#1C7C6E", "#F3F4F6"],
-                            borderWidth: 0
-                        }]
-                    }
-                });
-            } catch (e) {
-                console.log('Calorie chart already initialized');
-            }
-
-            chartsInitialized = true;
-
-            // Update calorie text
-            updateCalorieText(calorieGoal);
-            updateMacroTexts(proteinGoal, carbsGoal, fatsGoal);
-        }
-
-        // Function to update macro texts
-        function updateMacroTexts(proteinGoal, carbsGoal, fatsGoal) {
-            // Update goal texts
-            document.getElementById('proteinGoalText').textContent = proteinGoal;
-            document.getElementById('carbsGoalText').textContent = carbsGoal;
-            document.getElementById('fatsGoalText').textContent = fatsGoal;
-
-            // Update remaining values
-            document.getElementById('proteinRemaining').textContent = Math.max(0, proteinGoal - {{ $protein }});
-            document.getElementById('carbsRemaining').textContent = Math.max(0, carbsGoal - {{ $carbs }});
-            document.getElementById('fatsRemaining').textContent = Math.max(0, fatsGoal - {{ $fats }});
-
-            // Update charts
-            updateMacroCharts(proteinGoal, carbsGoal, fatsGoal);
-        }
-
-        // Function to update calorie text
-        function updateCalorieText(calorieGoal) {
-            document.getElementById('calorieGoalText').textContent = calorieGoal;
-            document.getElementById('caloriesRemainingText').textContent = Math.max(0, calorieGoal - {{ $caloriesIn }});
-            document.getElementById('caloriesConsumedFooter').textContent = {{ $caloriesIn }};
-
-            // Update calorie chart
-            updateCalorieChart(calorieGoal);
-        }
-
-        // Function to update macro charts
-        function updateMacroCharts(proteinGoal, carbsGoal, fatsGoal) {
-            if (!carbsChartInstance || !fatsChartInstance || !proteinChartInstance) {
-                return;
-            }
-
-            const carbsProgress = {{ $carbs }} / carbsGoal * 100;
-            const fatsProgress = {{ $fats }} / fatsGoal * 100;
-            const proteinProgress = {{ $protein }} / proteinGoal * 100;
-
-            carbsChartInstance.data.datasets[0].data = [Math.min(carbsProgress, 100), 100 - Math.min(carbsProgress, 100)];
-            fatsChartInstance.data.datasets[0].data = [Math.min(fatsProgress, 100), 100 - Math.min(fatsProgress, 100)];
-            proteinChartInstance.data.datasets[0].data = [Math.min(proteinProgress, 100), 100 - Math.min(proteinProgress, 100)];
-
-            carbsChartInstance.update('none');
-            fatsChartInstance.update('none');
-            proteinChartInstance.update('none');
-        }
-
-        // Function to update calorie chart
-        function updateCalorieChart(calorieGoal) {
-            if (!calorieChartInstance) {
-                return;
-            }
-
-            const calorieProgress = {{ $caloriesIn }} / calorieGoal * 100;
-            calorieChartInstance.data.datasets[0].data = [Math.min(calorieProgress, 100), 100 - Math.min(calorieProgress, 100)];
-            calorieChartInstance.update('none');
-        }
-
-        // Initialize charts when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeCharts();
-        });
-
-        // Carousel animation + dots
-        const carousel = document.getElementById('cardCarousel');
-        const cards = carousel.querySelectorAll('.carousel-card');
-        const dots = document.querySelectorAll('#carouselDots .dot');
-
-        function updateActiveCard() {
-            const carouselCenter = carousel.scrollLeft + carousel.offsetWidth / 2;
-            cards.forEach((card, index) => {
-                const cardCenter = card.offsetLeft + card.offsetWidth / 2;
-                const distance = Math.abs(carouselCenter - cardCenter);
-                const scale = Math.max(0.9, 1 - distance / 800);
-                card.style.transform = `scale(${scale})`;
-                if (distance < card.offsetWidth / 2) {
-                    dots.forEach(dot => dot.classList.remove('active'));
-                    dots[index].classList.add('active');
+            elements.forEach(el => {
+                const domEl = document.getElementById(el.id);
+                if (domEl) {
+                    domEl.textContent = el.value;
                 }
             });
         }
 
-        if (carousel) {
-            carousel.addEventListener('scroll', updateActiveCard);
-            window.addEventListener('resize', updateActiveCard);
-            updateActiveCard();
+        // Save Macro Goals (Mock Update)
+        function saveMacroGoals() {
+            goals.protein = parseInt(document.getElementById('macroProteinInput').value) || 0;
+            goals.carbs = parseInt(document.getElementById('macroCarbsInput').value) || 0;
+            goals.fats = parseInt(document.getElementById('macroFatsInput').value) || 0;
+            updateAllCharts();
+            closeMacroModal();
         }
 
-        // Close modals when clicking outside
-        document.addEventListener('click', function(event) {
-            const macroModal = document.getElementById('macroModal');
-            const calorieModal = document.getElementById('calorieModal');
+        // Save Calorie Goal (Mock Update)
+        function saveCalorieGoal() {
+            goals.calorie = parseInt(document.getElementById('calorieGoalInput').value) || 0;
+            updateAllCharts();
+            closeCalorieModal();
+        }
 
-            if (event.target === macroModal) {
-                closeMacroModal();
+        // Chart Initialization Logic
+        function initChart(ctxId, dataConsumed, dataGoal, color) {
+            const ctx = document.getElementById(ctxId);
+            if (!ctx) return null;
+
+            const remaining = Math.max(0, dataGoal - dataConsumed);
+            const consumedPct = Math.min(100, (dataConsumed / dataGoal) * 100);
+
+            const data = {
+                datasets: [{
+                    data: [consumedPct, 100 - consumedPct],
+                    backgroundColor: [color, '#e5e7eb'],
+                    borderWidth: 0,
+                    borderRadius: 5,
+                }]
+            };
+
+            return new Chart(ctx, {
+                type: 'doughnut',
+                data: data,
+                options: {
+                    rotation: -90,
+                    circumference: 180,
+                    cutout: '80%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false },
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false,
+                }
+            });
+        }
+
+        // Radial Progress Chart Initialization
+        function initProgressChart(ctxId) {
+            const ctx = document.getElementById(ctxId);
+            if (!ctx) return null;
+
+            const mealsLogged = consumed.meals;
+            const maxMeals = 4;
+            const percentage = Math.min(100, (mealsLogged / maxMeals) * 100);
+
+            const data = {
+                datasets: [{
+                    data: [percentage, 100 - percentage],
+                    backgroundColor: ['#10B981', '#e5e7eb'],
+                    borderWidth: 0,
+                    borderRadius: 10,
+                }]
+            };
+
+            return new Chart(ctx, {
+                type: 'doughnut',
+                data: data,
+                options: {
+                    cutout: '80%',
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                    responsive: true,
+                    maintainAspectRatio: false,
+                }
+            });
+        }
+
+        // Calorie Chart Initialization
+        function initCalorieChart(ctxId) {
+            const ctx = document.getElementById(ctxId);
+            if (!ctx) return null;
+
+            const remaining = Math.max(0, goals.calorie - consumed.calorie);
+            const consumedPct = Math.min(100, (consumed.calorie / goals.calorie) * 100);
+
+            const data = {
+                datasets: [{
+                    data: [consumedPct, 100 - consumedPct],
+                    backgroundColor: ['#f97316', '#e5e7eb'],
+                    borderWidth: 0,
+                    borderRadius: 10,
+                }]
+            };
+
+            return new Chart(ctx, {
+                type: 'doughnut',
+                data: data,
+                options: {
+                    cutout: '80%',
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                    responsive: true,
+                    maintainAspectRatio: false,
+                }
+            });
+        }
+
+        // Update Charts (Generic function to handle both mobile and desktop)
+        function updateChartData(chartInstance, consumed, goal) {
+            if (chartInstance) {
+                const consumedPct = Math.min(100, (consumed / goal) * 100);
+                chartInstance.data.datasets[0].data = [consumedPct, 100 - consumedPct];
+                chartInstance.update();
             }
-            if (event.target === calorieModal) {
-                closeCalorieModal();
+        }
+
+        function updateAllCharts() {
+            // Update Text (Mobile & Desktop)
+            updateText('protein', 'Protein', Math.max(0, goals.protein - consumed.protein), goals.protein);
+            updateText('carbs', 'Carbs', Math.max(0, goals.carbs - consumed.carbs), goals.carbs);
+            updateText('fats', 'Fats', Math.max(0, goals.fats - consumed.fats), goals.fats);
+
+            // Update Calorie Text
+            updateText('caloriesRemainingText', 'Calorie', Math.max(0, goals.calorie - consumed.calorie), goals.calorie);
+            updateText('caloriesConsumedFooter', 'Calorie', consumed.calorie, goals.calorie);
+
+            // Update Charts
+            updateChartData(charts.proteinChart, consumed.protein, goals.protein);
+            updateChartData(charts.carbsChart, consumed.carbs, goals.carbs);
+            updateChartData(charts.fatsChart, consumed.fats, goals.fats);
+            updateChartData(charts.calorieChart, consumed.calorie, goals.calorie);
+
+            updateChartData(charts.proteinChartDesktop, consumed.protein, goals.protein);
+            updateChartData(charts.carbsChartDesktop, consumed.carbs, goals.carbs);
+            updateChartData(charts.fatsChartDesktop, consumed.fats, goals.fats);
+            updateChartData(charts.calorieChartDesktop, consumed.calorie, goals.calorie);
+
+            // Progress chart is static for this example
+            charts.progressChart?.update();
+            charts.progressChartDesktop?.update();
+        }
+
+        // Initialize all charts on load
+        function initializeCharts() {
+            // Mobile Charts
+            charts.progressChart = initProgressChart('curvedProgressArc');
+            charts.carbsChart = initChart('carbsChart', consumed.carbs, goals.carbs, '#3B82F6');
+            charts.fatsChart = initChart('fatsChart', consumed.fats, goals.fats, '#F59E0B');
+            charts.proteinChart = initChart('proteinChart', consumed.protein, goals.protein, '#10B981');
+            charts.calorieChart = initCalorieChart('calorieChart');
+
+            // Desktop Charts
+            charts.progressChartDesktop = initProgressChart('curvedProgressArcDesktop');
+            charts.carbsChartDesktop = initChart('carbsChartDesktop', consumed.carbs, goals.carbs, '#3B82F6');
+            charts.fatsChartDesktop = initChart('fatsChartDesktop', consumed.fats, goals.fats, '#F59E0B');
+            charts.proteinChartDesktop = initChart('proteinChartDesktop', consumed.protein, goals.protein, '#10B981');
+            charts.calorieChartDesktop = initCalorieChart('calorieChartDesktop');
+
+            updateAllCharts();
+        }
+
+        // Carousel Logic (Mobile Only)
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeCharts();
+            const carousel = document.getElementById('cardCarousel');
+            const dots = document.querySelectorAll('.dot');
+
+            if (carousel && dots.length > 0) {
+                const cardWidth = carousel.querySelector('.carousel-card').offsetWidth + 16; // Card width + gap (4 units = 16px)
+
+                const updateDots = () => {
+                    const scrollLeft = carousel.scrollLeft;
+                    const currentIndex = Math.round(scrollLeft / cardWidth);
+
+                    dots.forEach((dot, index) => {
+                        dot.classList.toggle('active', index === currentIndex);
+                    });
+                };
+
+                // Initial dot state
+                updateDots();
+
+                // Update dots on scroll
+                carousel.addEventListener('scroll', updateDots);
+
+                // Clicking dots scrolls the carousel (Optional)
+                dots.forEach((dot, index) => {
+                    dot.addEventListener('click', () => {
+                        carousel.scrollTo({
+                            left: index * cardWidth,
+                            behavior: 'smooth'
+                        });
+                    });
+                });
             }
         });
+
     </script>
-
-    <style>
-        .carousel {
-            scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch;
-            overflow-x: auto;
-            gap: 1rem;
-            padding: 1rem 0;
-        }
-        .carousel::-webkit-scrollbar {
-            display: none;
-        }
-        .carousel-card {
-            scroll-snap-align: start;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border-radius: 1rem;
-        }
-        canvas {
-            width: 100% !important;
-            height: 100% !important;
-        }
-        .dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background-color: #D1D5DB;
-            transition: all 0.3s ease;
-        }
-        .dot.active {
-            width: 8px;
-            height: 8px;
-            background-color: #1C7C6E;
-        }
-
-        /* Ensure all doughnut charts have the same size */
-        #carbsChart, #fatsChart, #proteinChart, #calorieChart {
-            width: 100% !important;
-            height: 100% !important;
-            max-width: 120px;
-            max-height: 120px;
-        }
-
-        @media (min-width: 768px) {
-            #carbsChart, #fatsChart, #proteinChart, #calorieChart {
-                max-width: 140px;
-                max-height: 140px;
-            }
-        }
-
-        @media (min-width: 1024px) {
-            #carbsChart, #fatsChart, #proteinChart, #calorieChart {
-                max-width: 160px;
-                max-height: 160px;
-            }
-        }
-    </style>
 </div>
